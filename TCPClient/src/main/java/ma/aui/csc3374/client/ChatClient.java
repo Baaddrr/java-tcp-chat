@@ -91,15 +91,23 @@ public final class ChatClient implements AutoCloseable {
 
     /** Interprets the assignment's text commands; false means the user requested disconnection. */
     public boolean submit(String text) throws IOException {
-        switch (text.strip()) {
-            case "allUsers" -> requestUsers();
-            case "end", "bye" -> {
-                leave();
-                return false;
-            }
-            default -> sendMessage(text);
+        if (isLeaveCommand(text)) {
+            leave();
+            return false;
+        }
+        if (text.strip().equals("allUsers")) {
+            requestUsers();
+        } else {
+            sendMessage(text);
         }
         return true;
+    }
+
+    public static boolean isLeaveCommand(String text) {
+        return switch (text.strip()) {
+            case "end", "bye" -> true;
+            default -> false;
+        };
     }
 
     public void leave() throws IOException {

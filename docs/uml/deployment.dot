@@ -1,0 +1,41 @@
+digraph RelayDeployment {
+  graph [rankdir=LR, label="RELAY  |  UML deployment diagram", labelloc=t, labeljust=l,
+         fontname="Segoe UI Bold", fontsize=24, bgcolor="#faf7ff", pad=.30, nodesep=.40, ranksep=1.05, splines=polyline]
+  node [shape=box3d, style=filled, color="#82679e", fillcolor="#f0e7f8",
+        fontname="Segoe UI", fontsize=12, margin=".20,.12"]
+  edge [color="#6b4f8b", fontcolor="#51396b", fontname="Segoe UI", fontsize=10, arrowsize=.8]
+
+  server [label=<
+    <B>«device» Server host</B><BR/><BR/>
+    Java 24 + JavaFX<BR/>
+    «artifact» TCPServer.jar<BR/>
+    lib/ and server.properties<BR/><BR/>
+    TCP listener port from server.properties<BR/>
+    Default 127.0.0.1:3000
+  >]
+  namedA [label=<
+    <B>«device» Client host A</B><BR/><BR/>
+    Java 24 + JavaFX<BR/>
+    «artifact» TCPClient.jar<BR/>
+    lib/ and client.properties<BR/><BR/>
+    Named session
+  >]
+  namedB [label=<
+    <B>«device» Client host B</B><BR/><BR/>
+    Java 24 + JavaFX<BR/>
+    «artifact» TCPClient.jar<BR/>
+    lib/ and client.properties<BR/><BR/>
+    Named session
+  >]
+  guest [label=<
+    <B>«device» Client host C</B><BR/><BR/>
+    Java 24 + JavaFX<BR/>
+    «artifact» TCPClient.jar<BR/>
+    lib/ and client.properties<BR/><BR/>
+    Read-only session
+  >]
+  {rank=same; namedA; namedB; guest;}
+  namedA -> server [dir=both, label="TCP/IP\nconfigured port"]
+  namedB -> server [dir=both, label="TCP/IP\nconfigured port"]
+  guest -> server [dir=both, label="TCP/IP\nconfigured port"]
+}

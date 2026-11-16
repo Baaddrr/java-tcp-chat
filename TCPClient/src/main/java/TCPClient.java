@@ -5,9 +5,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public final class TCPClient {
     public static void main(String[] args) {
+        if (args.length > 0 && args[0].equals("--console")) {
+            runConsole(Arrays.copyOfRange(args, 1, args.length));
+        } else {
+            RelayClient.main(args);
+        }
+    }
+
+    private static void runConsole(String[] args) {
         try {
             Path path = Path.of(System.getProperty("chat.client.config", "config/client.properties"));
             ClientConfig config = ClientConfig.load(path, args);

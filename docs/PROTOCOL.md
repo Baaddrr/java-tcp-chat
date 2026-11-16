@@ -45,17 +45,17 @@ The client consumes `WELCOME` synchronously in `join()`. Its single receive loop
 
 ## Text commands and content
 
-The console and future view can call `ChatClient.submit(text)`:
+The console and JavaFX composer use `ChatClient.submit(text)`:
 
 - Stripped text exactly equal to `allUsers` sends `USERS`.
 - Stripped text exactly equal to `end` or `bye` sends `LEAVE` and closes; `submit` returns `false`.
 - Other text is sent as `CHAT`. Commands are case-sensitive.
 
-`sendMessage(text)` explicitly sends chat content, so literal `allUsers`, `end`, or `bye` are ordinary messages through that API. Text may contain newlines, tabs, NUL, Unicode, and type names without escaping or changing frame interpretation. The temporary console accepts one message per input line; the networking API also supports multiline content.
+`sendMessage(text)` explicitly sends chat content, so literal `allUsers`, `end`, or `bye` are ordinary messages through that API. Frames can carry newlines, tabs, NUL, and Unicode. The console accepts one input line per message and the JavaFX composer supports multiline text.
 
 ## Ambiguities resolved for this milestone
 
-The professor's architecture paragraph says to distribute to other clients; the server feature list says all active connections. This implementation follows the latter and echoes the server-formatted message to its sender. A future interface should display that received copy rather than append another local copy.
+The server feature list specifies all active connections. The server echoes the authoritative message to its sender, and the JavaFX view displays the received frame.
 
 The PDF does not define duplicate names, guest display labels, validation limits, ordering, or a wire encoding. The rules above make those behaviors explicit. They are implementation choices, not additional professor requirements.
 

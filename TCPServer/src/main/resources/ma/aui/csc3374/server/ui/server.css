@@ -1,0 +1,71 @@
+.server {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14;
+    -fx-background-color: radial-gradient(center 75% 0%, radius 92%, #251b44, #15102b);
+    -fx-padding: 26;
+    -fx-hgap: 16;
+    -fx-vgap: 18;
+}
+.server-header {
+    -fx-background-color: linear-gradient(to right, #34254c, #251a3a);
+    -fx-background-radius: 19;
+    -fx-border-color: #56416f;
+    -fx-border-radius: 19;
+    -fx-padding: 17 21;
+    -fx-hgap: 18;
+    -fx-vgap: 4;
+}
+.server-title, .server-panel-title { -fx-text-fill: #fcfaff; -fx-font-weight: bold; }
+.server-title { -fx-font-size: 30; }
+.server-endpoint, .server-muted { -fx-text-fill: #bda8df; -fx-font-size: 13; }
+.server-status {
+    -fx-background-color: #21182f;
+    -fx-background-radius: 12;
+    -fx-padding: 8 12;
+    -fx-text-fill: #e2d1f3;
+    -fx-graphic-text-gap: 8;
+}
+.status-dot { -fx-fill: #f893b9; }
+.status-dot:online { -fx-fill: #7fe1ad; }
+.stop-server {
+    -fx-background-color: #fa479c;
+    -fx-text-fill: #1d1129;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-border-radius: 10;
+    -fx-font-weight: bold;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+}
+.stop-server:hover { -fx-background-color: #ff68ae; }
+.stop-server:pressed { -fx-background-color: #e63d8c; }
+.stop-server:focused { -fx-border-color: #f4d5ff; }
+.stop-server:disabled { -fx-opacity: 0.55; }
+.server-panel {
+    -fx-background-color: #211832;
+    -fx-background-radius: 18;
+    -fx-border-color: #493761;
+    -fx-border-radius: 18;
+    -fx-padding: 16;
+    -fx-vgap: 12;
+}
+.server-panel-title { -fx-font-size: 18; }
+.server-panel .list-view {
+    -fx-background-color: #1a1429;
+    -fx-background-radius: 11;
+    -fx-padding: 6;
+}
+.server-panel .list-view:focused { -fx-border-color: #8064a0; -fx-border-radius: 11; }
+.server-panel .list-cell { -fx-background-color: transparent; -fx-text-fill: #fcfaff; }
+.server-panel .list-cell:selected { -fx-border-color: #b48de5; -fx-border-radius: 6; }
+#server-users .list-cell { -fx-padding: 9 11; -fx-background-radius: 7; -fx-background-insets: 2 0; }
+#server-activity .list-cell { -fx-padding: 7 7; }
+.server-log-row { -fx-hgap: 13; }
+.server-log-time { -fx-text-fill: #cfb3ee; -fx-font-family: "Consolas"; -fx-font-size: 13; }
+.server-log-message { -fx-text-fill: #fcfaff; -fx-font-size: 13; }
+.server-panel .scroll-bar { -fx-background-color: transparent; }
+.server-panel .scroll-bar .thumb { -fx-background-color: #644d80; -fx-background-radius: 8; }
+.server-panel .scroll-bar .increment-button, .server-panel .scroll-bar .decrement-button {
+    -fx-opacity: 0;
+    -fx-padding: 2;
+}

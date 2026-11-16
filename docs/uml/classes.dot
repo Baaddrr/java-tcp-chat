@@ -1,0 +1,49 @@
+digraph RelayClasses {
+  graph [label="RELAY  |  UML class diagram", labelloc=t, labeljust=l, fontname="Segoe UI Bold", fontsize=24, bgcolor="#faf7ff", compound=true, pad=.30, nodesep=.36, ranksep=.50]
+  node [shape=record, style=filled, fillcolor=white, color="#6b4f8b", fontname="Segoe UI", fontsize=11, margin=".12,.08"]
+  edge [color="#63477f", fontcolor="#51396b", fontname="Segoe UI", fontsize=9, arrowsize=.75]
+
+
+  subgraph cluster_client {
+    label="TCPClient module"; labelloc=t; labeljust=l; fontname="Segoe UI Bold"; color="#bd9bd6"; style="rounded,filled"; fillcolor="#f3ecf9"
+    ClientMain [label="{TCPClient|+ main(args): void}"]
+    Alias [label="{RelayClient|+ main(args): void}"]
+    ClientApp [label="{RelayApplication\n«JavaFX Application»|+ start(stage): void\l+ stop(): void\l}"]
+    Welcome [label="{WelcomeView\n«JavaFX StackPane»|- username: TextField\l|~ setConnecting(loading): void\l}"]
+    Connected [label="{ConnectedView\n«JavaFX GridPane»|- composer: TextArea\l- participants: ListView\l|~ receive(event): void\l}"]
+    ClientConf [label="{ClientConfig|host: String\lport: int\l|+ load(path, args): ClientConfig\l}"]
+    Client [label="{ChatClient|- socket: Socket\l- outputLock: Object\l|+ join(name): Identity\l+ submit(text): boolean\l+ receive(listener): void\l+ leave(): void\l+ close(): void\l}"]
+    ClientValues [label="{ChatClient nested values|Identity\lEvent (sealed interface)\lChatMessage, UserList, ServerError\l}"]
+
+    ClientMain -> Alias [style=dashed, label="launches"]
+    ClientMain -> Client [style=dashed, label="console"]
+    Alias -> ClientApp [style=dashed]
+    ClientApp -> Welcome [arrowtail=diamond, dir=both, arrowhead=none]
+    ClientApp -> Connected [arrowtail=diamond, dir=both, arrowhead=none]
+    ClientApp -> Client [arrowtail=diamond, dir=both, arrowhead=none, label=" 0..1 active"]
+    ClientApp -> ClientConf [style=dashed]
+    Client -> ClientValues [style=dashed, label="emits"]
+    Connected -> ClientValues [style=dashed, label="renders"]
+  }
+
+  subgraph cluster_server {
+    label="TCPServer module"; labelloc=t; labeljust=l; fontname="Segoe UI Bold"; color="#bd9bd6"; style="rounded,filled"; fillcolor="#f3ecf9"
+    ServerMain [label="{TCPServer|+ main(args): void}"]
+    ServerApp [label="{ServerApplication\n«JavaFX Application»|+ start(stage): void\l+ stop(): void\l}"]
+    ServerUI [label="{ServerView\n«JavaFX GridPane»|~ setStatus(text, online): void\l~ setUsers(names): void\l~ append(activity): void\l}"]
+    ServerConf [label="{ServerConfig|host: String\lport: int\l|+ load(path): ServerConfig\l}"]
+    Server [label="{ChatServer|- listener: ServerSocket\l- handlers: ExecutorService\l- users: Map\l|+ run(): void\l+ activeUsers(): List\l+ close(): void\l}"]
+    Session [label="{ChatServer.Session|- socket: Socket\l- username: String\l- readOnly: boolean\l}"]
+    Activity [label="{ChatServer.Activity|timestamp: Instant\lmessage: String\l}"]
+
+    ServerMain -> ServerApp [style=dashed, label="launches"]
+    ServerMain -> Server [style=dashed, label="console"]
+    ServerApp -> ServerUI [arrowtail=diamond, dir=both, arrowhead=none]
+    ServerApp -> Server [arrowtail=diamond, dir=both, arrowhead=none, label=" 0..1 active"]
+    ServerApp -> ServerConf [style=dashed]
+    Server -> Session [arrowtail=diamond, dir=both, arrowhead=none, label=" 0..*"]
+    Server -> Activity [style=dashed, label="publishes"]
+    ServerUI -> Activity [style=dashed, label="renders"]
+  }
+
+}

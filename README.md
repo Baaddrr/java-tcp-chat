@@ -1,161 +1,94 @@
-# CSC 3374 Mini Project 1: TCP Chat
+# RELAY · CSC 3374 Mini Project 1
 
-Phase 2 implements the TCP chat functionality of **Multi-Client Chat Application Using Java Sockets**: usernames, server-enforced read-only guests, group messages, active-user requests, and clean disconnection. The professor's requirements PDF is the assignment specification. JavaFX, UML, and final presentation deliverables remain for later phases.
+RELAY is a single-room group chat built with Java 24, TCP sockets, virtual threads, and JavaFX 24. The Maven project has two executables. **TCPServer** accepts connections, broadcasts messages, and displays live server activity. **TCPClient** joins as a named participant or a read-only guest and displays the shared conversation.
 
-## Prerequisites and IntelliJ
+## Windows setup
 
-- JDK 24; no preview features.
-- Maven 3.9.x, installed or bundled with IntelliJ IDEA.
-- Open/reload the root `pom.xml` as a Maven project. It aggregates `TCPServer` and `TCPClient`.
-- Set Project SDK, Maven importer JDK, and Maven runner JRE to Java 24.
-- For application run configurations, select the `TCPServer` or `TCPClient` main class and the matching module classpath. Set the working directory to the repository root; allow multiple client instances.
-
-On the current machine, the terminal defaults to Java 8 and Maven is not on PATH. In each PowerShell terminal:
+Install JDK 24 and Maven 3.9.x. IntelliJ IDEA’s bundled Maven works as well. Open a PowerShell terminal at the repository root and verify that Maven is using Java 24.
 
 ```powershell
-Set-Location 'C:\Users\asus\IdeaProjects\tcp-chat-project'
-$env:JAVA_HOME = 'C:\Users\asus\Downloads\jdk-24_windows-x64_bin\jdk-24.0.2'
-$env:Path = "$env:JAVA_HOME\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.1.2\plugins\maven\lib\maven3\bin;$env:Path"
 java -version
 mvn -version
-```
-
-Use your own JDK/Maven installation paths on another machine. The POMs contain no machine-specific paths. Generated `target/`, `out/`, class files, and IntelliJ `.idea/` settings are excluded from Git. The root is only a Maven parent and has no `src/` directory.
-
-## Build and verification
-
-```powershell
 mvn clean verify
 ```
 
-This runs tests and produces:
+Set `JAVA_HOME` to your JDK 24 installation and add its `bin` directory and Maven's `bin` directory to `PATH`. IntelliJ's Maven runner can also execute the build.
 
-```text
-TCPServer/target/TCPServer.jar
-TCPClient/target/TCPClient.jar
+## Project layout
+
+| Path | Contents |
+| --- | --- |
+| `pom.xml` | Parent Maven build for both modules |
+| `TCPServer/` | Server launcher, TCP model, JavaFX dashboard, and tests |
+| `TCPClient/` | Client launcher, TCP model, JavaFX views, and tests |
+| `config/` | External server and client address/port settings |
+| `docs/` | Protocol, UML, screenshots, and verification notes |
+
+## Launch the packaged applications
+
+Start the server in one terminal. Open another terminal in the same working directory for each client. The submission ZIP contains a ready-to-run Windows x64 build. Run these commands from the extracted `submission/` directory.
+
+```powershell
+java -jar run/TCPServer.jar
+java -jar run/TCPClient.jar localhost 3000
 ```
 
-The Phase 2 build passed with Java 24: **51 tests, zero failures/errors/skips**. All 28 Phase 1 tests remain unchanged. The 23 new test cases cover group messaging to three clients, server-owned identity/time, Unicode/multiline framing, guest restrictions through raw TCP, private user inquiries, duplicate names including simultaneous joins, EOF/reset cleanup, name reuse, shutdown, invalid requests, text commands, malformed server frames, and concurrent writes.
-
-The concurrency tests send 120 messages from two clients and verify all 120 unique complete messages at each of three recipients. A separate test mixes 120 chat frames with 60 user inquiries from three threads sharing one `ChatClient`. Waits use futures/conditions with deadlines. Negative no-delivery checks use a bounded socket read timeout.
-
-Run individual modules with `mvn -pl TCPServer test` or `mvn -pl TCPClient test`. Full results are under each module's `target/surefire-reports`.
-
-## Demonstration: server plus three client processes
-
-Run from the repository root, using the environment setup above in each terminal.
-
-Terminal 1:
+The ZIP's two JARs share `run/lib`. Keep that directory beside them and keep `config/` in the working directory. A source build from the repository root produces the following launch paths.
 
 ```powershell
 java -jar TCPServer/target/TCPServer.jar
-```
-
-Terminals 2, 3, and 4 (each starts its own client JVM):
-
-```powershell
 java -jar TCPClient/target/TCPClient.jar localhost 3000
 ```
 
-At the username prompt, enter `Alice` in terminal 2, `Bob` in terminal 3, and a blank line in terminal 4. The guest receives a label such as `Guest-1` and `READ-ONLY MODE`.
+Each Maven-built executable uses its adjacent `target/lib` directory. Maven copies JavaFX natives for the build platform. Rebuild from source for another OS or architecture.
 
-1. Alice types `Hello Bob and guest`. Alice, Bob, and the guest receive the same server-assigned username/timestamp/text.
-2. The guest types a chat message. Only that guest receives the server's read-only rejection; other clients receive no chat from it. The connection stays open.
-3. Bob types `allUsers`. Only Bob sees `Active users: Alice, Bob, Guest-1`.
-4. Bob types `bye`. Alice's subsequent `allUsers` returns `Alice, Guest-1`.
-5. Alice types `end`. The guest can still request `allUsers` and sees only `Guest-1`.
-6. Press Enter in the server terminal. Its listener and clients close, handlers finish, and the guest exits.
-
-This sequence was executed with the packaged applications and three simultaneously connected client JVMs. The server and all clients exited with code `0`. The generated transcript is `TCPServer/target/phase2-demo-results.txt` when present; a later `clean` removes it.
-
-Observed chat output from that run:
-
-```text
-[Alice] [2026-10-17T20:15:36.391133Z] Alice: Hello Bob and guest
-[Bob]   [2026-10-17T20:15:36.391133Z] Alice: Hello Bob and guest
-[guest] [2026-10-17T20:15:36.391133Z] Alice: Hello Bob and guest
-[guest] Server: READ-ONLY MODE: guests cannot send chat messages
-[Bob]   Active users: Alice, Bob, Guest-1
-```
-
-Timestamps vary. The PDF's class names also work with explicit classpaths:
+The assignment’s class-based entry points are `TCPServer` and `TCPClient <ServerIPAddress> <PortNumber>`. These commands launch the same packaged classes with JavaFX on the module path.
 
 ```powershell
-java -cp TCPServer/target/TCPServer.jar TCPServer
-java -cp TCPClient/target/TCPClient.jar TCPClient localhost 3000
+java --enable-native-access=javafx.graphics --module-path TCPServer/target/lib --add-modules javafx.controls -cp TCPServer/target/TCPServer.jar TCPServer
+java --enable-native-access=javafx.graphics --module-path TCPClient/target/lib --add-modules javafx.controls -cp TCPClient/target/TCPClient.jar TCPClient localhost 3000
 ```
 
-Client console EOF closes its connection. Server Enter/EOF requests shutdown. JVM shutdown hooks close sockets on normal termination; force-killing a process cannot execute Java cleanup.
+For the original console workflow, add `--console` after the JAR or main class and before any client host/port arguments. Press Enter in the server terminal to stop it.
 
-## Configuration and protocol
+### IntelliJ IDEA
 
-The existing configuration mechanism is unchanged. Edit `config/server.properties` or `config/client.properties` without rebuilding:
+1. Open the root `pom.xml` as a Maven project. Set the Project SDK, Maven importer JDK, and Maven runner JRE to Java 24. Reload Maven.
+2. Create Application configurations for `TCPServer` and `TCPClient` using their respective module classpaths. Set the working directory to the repository root.
+3. In the client configuration, set program arguments to `localhost 3000` or leave them empty for the properties file. Enable **Allow multiple instances** to launch several clients.
+4. Build and test through the Maven `verify` lifecycle. Use the packaged module-path commands above when you want to launch with JavaFX as named modules.
 
-```properties
-server.host=127.0.0.1
-server.port=3000
-```
+## Configuration
 
-On the server, the host is a local bind address. On the client, it is the destination address. Client IP/port arguments override properties; either zero or exactly two arguments are supported. A readable configuration file remains required even with arguments. Invalid startup settings fail visibly with exit code `1`.
+| File | Purpose | Default |
+| --- | --- | --- |
+| `config/server.properties` | Address the server binds to and its listening port | `127.0.0.1:3000` |
+| `config/client.properties` | Address and port clients connect to | `127.0.0.1:3000` |
 
-Override the default configuration path with a JVM property before `-jar`:
+Both files use `server.host` and `server.port`. Passing both client arguments overrides those values. The client still loads its properties file at startup. Use `-Dchat.server.config=path` or `-Dchat.client.config=path` before `-jar` or the main class to choose a different file. For a LAN deployment, set the server bind address to the appropriate interface and point clients at that host’s LAN IP. The checked configuration and tests use localhost.
 
-```powershell
-java -Dchat.server.config=C:/path/server.properties -jar TCPServer/target/TCPServer.jar
-java -Dchat.client.config=C:/path/client.properties -jar TCPClient/target/TCPClient.jar localhost 4000
-```
+## Use RELAY
 
-Default paths are relative to the working directory. TCP connect and identification reads have five-second timeouts; hostname resolution follows JVM/OS behavior. After identification, socket reads block until data, EOF, cancellation, or a transport error.
+- Join with an available username, or choose **Continue as Guest**. Guests receive the conversation, request the participant list, and leave.
+- Use **SEND** or Enter to send. The server attaches the username and timestamp and broadcasts once to every active session, including the sender.
+- Enter `allUsers` or click the sidebar’s **allUsers** button to request a participant snapshot. Only the requesting client receives that reply.
+- Enter `end` or `bye`, or click **LEAVE**. The client returns to the welcome screen with Offline status. A server disconnect also returns there and displays a reason.
+- The server dashboard shows connected users, their assigned colors, and the activity log. **Stop Server** closes the listener and client sockets.
 
-See [the wire protocol](docs/PROTOCOL.md) for field schemas, command/content separation, limits, errors, and ambiguity decisions. In particular: broadcasts include the sender, duplicate names use a case-normalized first-registration-wins rule, guests receive reserved labels, and `allUsers` includes guests.
+## Architecture and verification
 
-## Classes and methods to understand
+`ChatServer`, `ChatClient`, and both configuration records use the JDK alone. The JavaFX applications coordinate their lifecycles, and the views render state. The server accepts one TCP socket per client and runs each handler on a virtual thread. The client moves connect, receive, and command writes off the JavaFX Application Thread.
 
-| Class / method | Responsibility |
-| --- | --- |
-| `ChatServer.run()` | Accepts sockets and submits one virtual-thread handler per connection; waits for handlers during shutdown. |
-| `ChatServer.handle()` | Reads a required join, then commands. Enforces guest restrictions and message limits, routes private replies, and removes closed connections in `finally`. |
-| `ChatServer.register()` | Atomically reserves a unique identity or assigns a guest label. Keeps `WELCOME` ahead of any concurrent broadcast. |
-| `ChatServer.activeUsers()` | Returns an immutable, sorted snapshot of registered names under the lifecycle lock. |
-| `ChatServer.broadcast()` | Creates one authoritative timestamp and sends the message to a recipient snapshot. Removes/closes failed recipients and continues other delivery attempts. |
-| `ChatServer.Session` | Private per-connection username, read-only state, and output stream. Synchronized frame methods prevent multiple writers from interleaving bytes. |
-| `ChatServer.close()` | Closes the listening and accepted sockets and stops task submission. `run()` waits for handlers after releasing the lifecycle lock. |
-| `ChatClient.join()` | Sends the username, consumes the registration reply, and returns the server's assigned `Identity`. Rejects unsuccessful/malformed handshakes. Call before starting the receive loop. |
-| `ChatClient.sendMessage()` / `requestUsers()` | Send explicitly typed chat or inquiry frames. Guest chat is still checked by the server, even if a caller bypasses view restrictions. |
-| `ChatClient.submit()` | Maps exact text commands `allUsers`, `end`, and `bye`; otherwise sends chat. Returns false on a requested disconnect. |
-| `ChatClient.leave()` / `close()` | `leave()` sends the protocol disconnect and closes, ready for a future LEAVE button. `close()` immediately cancels socket I/O, including a blocked join/receive. |
-| `ChatClient.receive()` | Single blocking decoder loop invoking a callback with immutable `ChatMessage`, `UserList`, or `ServerError` values. Closes on EOF/failure. |
-| `ChatClient.awaitDisconnect()` | Retained Phase 1 lifecycle API; uses the receive loop while discarding events. Do not run it alongside another reader. |
-| `TCPClient.main()` | Temporary presentation: prompts for a name, prints events, and reads text on a virtual thread while the main thread receives. |
-| `TCPServer.main()` | Existing console lifecycle control; only its Phase 1-specific startup wording changed. |
-| `ClientConfig` / `ServerConfig` | Existing property loading and validation; unchanged in Phase 2. |
+TCP frames start with a type written using `DataOutputStream.writeUTF`, followed by that type's fields. `JOIN` and `WELCOME` establish identity, `CHAT` becomes a server-authored `MESSAGE`, `USERS` returns a private roster snapshot, and `LEAVE` closes the session. See the [protocol reference](docs/PROTOCOL.md) for field layouts, ordering, and validation.
 
-No new production top-level classes, modules, frameworks, runtime libraries, or configuration options were added. The two new test classes are `ChatProtocolTest` in the server module and `ChatClientProtocolTest` in the client module. The Maven POMs, properties files, and existing tests are unchanged.
+`mvn clean verify` runs networking and JavaFX tests. Use a graphical session with localhost TCP permitted. The verified Windows build with JDK 24.0.2 passed **66 tests** with zero failures, errors, or skips. Reports are in each module’s `target/surefire-reports`. See [architecture and verification details](docs/RELAY.md).
 
-## Alice to Bob: message lifecycle
+- UML class diagram ([PNG](docs/uml/classes.png), [Graphviz source](docs/uml/classes.dot))
+- UML deployment diagram ([PNG](docs/uml/deployment.png), [Graphviz source](docs/uml/deployment.dot))
+- [Remote GitHub repository](https://github.com/Baaddrr/java-tcp-chat)
 
-1. Alice's console calls `submit(text)`, which calls `sendMessage(text)` for ordinary chat.
-2. Alice's client locks its output stream and writes a complete `CHAT` frame. It supplies only the text.
-3. Alice's server virtual thread reads that frame. It uses the identity registered for Alice's socket, checks read-only status and text limits, then calls `broadcast`.
-4. The server takes a recipient snapshot under the lifecycle lock and releases it before network writes. It creates one UTC `Instant` and locks each recipient's output while writing `MESSAGE`, sender, timestamp, and text.
-5. Bob's single receive loop decodes a `ChatMessage`. The console callback displays it. Alice and guests receive the same event fields.
+### JavaFX screens
 
-The future JavaFX view can reuse this API. Connect/join/send/receive must run off the JavaFX application thread, and UI updates must be marshalled onto it. This phase contains no JavaFX code.
+[Welcome](docs/screenshots/welcome.png) · [Group chat](docs/screenshots/chat.png) · [Server dashboard](docs/screenshots/server.png)
 
-## Virtual threads, synchronization, and ownership
-
-Virtual threads allow each client handler to block on its own socket without blocking the accept loop. They do not protect shared collections or make multi-field writes atomic.
-
-The lifecycle lock protects the accepted-socket set, user registry, guest counter, and shutdown boundary. The set tracks all accepted sockets so shutdown also cancels clients that have not identified themselves; the registry tracks identified recipients. Snapshots allow network writes outside that global lock. Each session monitor locks complete outgoing frames. The supplied client likewise serializes its writers with an output lock, while exactly one thread reads its input.
-
-A session may acquire its output monitor and then the lifecycle lock during registration. No code holds the lifecycle lock while acquiring a session output monitor. Shutdown closes sockets directly without waiting for output locks, which also cancels blocked writes. Cleanup removes a user only if the registry still points to that exact session.
-
-The server owns the listener, accepted sockets, and handler executor; each client owns its socket. Close the sockets before waiting for handlers, otherwise the handlers can remain blocked in reads. Closing, EOF, reset, rejection, and failed output all lead to cleanup.
-
-## Limits and review
-
-Verification is on Windows, Java 24, and localhost. LAN/firewall deployment and load capacity remain unverified. This is username identification, with no passwords or encryption. Silent network failures depend on TCP/OS detection. A slow receiver can apply backpressure to broadcasting threads; there is no outbound queue or write deadline. Concurrent senders have no promised global ordering across recipients. These limits are documented instead of adding unrelated infrastructure.
-
-Useful defense questions: Why is a thread-safe user map alone insufficient to protect `writeUTF` frames? Why must a new session's `WELCOME` and publication share an output lock? Why does shutdown close sockets before awaiting tasks?
-
-Phase 1 and Phase 2 are included together in the initial Git commit. The repository is hosted at https://github.com/Baaddrr/java-tcp-chat. JavaFX remains outside these completed phases.
+The screenshots are application renders. The chat and dashboard use sample conversation and activity data.

@@ -1,4 +1,6 @@
 target/
+/submission/
+/RELAY-CSC3374-Submission.zip
 !.mvn/wrapper/maven-wrapper.jar
 .kotlin
 

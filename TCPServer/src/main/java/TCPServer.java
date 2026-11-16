@@ -1,5 +1,8 @@
 import ma.aui.csc3374.server.ChatServer;
 import ma.aui.csc3374.server.ServerConfig;
+import ma.aui.csc3374.server.ui.ServerApplication;
+
+import javafx.application.Application;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,10 +11,18 @@ import java.nio.file.Path;
 
 public final class TCPServer {
     public static void main(String[] args) {
+        if (args.length == 0) {
+            Application.launch(ServerApplication.class);
+        } else if (args.length == 1 && args[0].equals("--console")) {
+            runConsole();
+        } else {
+            System.err.println("Usage: TCPServer [--console]");
+            System.exit(1);
+        }
+    }
+
+    private static void runConsole() {
         try {
-            if (args.length != 0) {
-                throw new IllegalArgumentException("Usage: TCPServer");
-            }
             Path path = Path.of(System.getProperty("chat.server.config", "config/server.properties"));
             ServerConfig config = ServerConfig.load(path);
             try (ChatServer server = new ChatServer(config.host(), config.port())) {

@@ -1,0 +1,168 @@
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 17px;
+    -fx-background-color: #15102b;
+    -fx-text-fill: #fcfaff;
+}
+.welcome {
+    -fx-background-color: radial-gradient(center 78% 38%, radius 90%, #211b46 0%, #15102b 72%, #17112e 100%);
+}
+.welcome-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(59, 44, 83, 0.71), rgba(40, 32, 65, 0.85));
+    -fx-background-radius: 24px;
+    -fx-border-radius: 24px;
+    -fx-border-width: 1px;
+    -fx-border-color: #655084;
+    -fx-effect: dropshadow(gaussian, rgba(5, 3, 18, 0.4), 40, 0.08, 0, 15);
+}
+.label { -fx-text-fill: #bda8df; }
+.greeting { -fx-font-size: 21px; -fx-font-weight: bold; }
+.brand { -fx-font-size: 62px; -fx-font-weight: bold; -fx-text-fill: #fcfaff; }
+.description { -fx-font-size: 18px; -fx-line-spacing: 1px; }
+.field-label { -fx-font-size: 12px; }
+.username-input {
+    -fx-background-color: rgba(76, 57, 104, 0.40);
+    -fx-background-radius: 14px;
+    -fx-border-color: #57416f;
+    -fx-border-radius: 14px;
+}
+.username-input:focused { -fx-border-color: #b48de5; }
+.text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #fcfaff;
+    -fx-prompt-text-fill: #bda8df;
+    -fx-highlight-fill: #7454a9;
+    -fx-padding: 0 18 0 78;
+    -fx-font-size: 17px;
+}
+.user-icon { -fx-fill: transparent; -fx-stroke: #bda8df; -fx-stroke-width: 2px; }
+.button { -fx-cursor: hand; -fx-background-insets: 0; }
+.join-button {
+    -fx-background-color: linear-gradient(to right, #fa3c98, #ff459e);
+    -fx-background-radius: 14px;
+    -fx-text-fill: #15102b;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 14px;
+    -fx-border-width: 2px;
+    -fx-border-color: transparent;
+}
+.join-button:hover { -fx-background-color: #ff63ad; }
+.join-button:pressed { -fx-background-color: #e9398a; }
+.join-button:focused { -fx-border-color: #f4d5ff; }
+.guest-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #fcfaff;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 12;
+    -fx-border-color: transparent;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+.guest-button:hover { -fx-text-fill: #e2c9ff; }
+.guest-button:focused { -fx-border-color: #b48de5; }
+.guest-caption { -fx-font-size: 14px; }
+.inline-error { -fx-font-size: 13px; -fx-text-fill: #ffb7d6; }
+.button:disabled, .text-field:disabled { -fx-opacity: 0.65; }
+.decorative-ring { -fx-fill: transparent; -fx-stroke: rgba(157, 118, 201, 0.25); -fx-stroke-width: 0.8px; }
+.connected {
+    -fx-background-color: radial-gradient(center 76% 0%, radius 92%, #251b44, #15102b);
+    -fx-padding: 26;
+    -fx-hgap: 18;
+}
+.chat-sidebar, .conversation {
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #493761;
+}
+.chat-sidebar {
+    -fx-background-color: linear-gradient(to bottom, #302342, #211832);
+    -fx-padding: 20;
+    -fx-vgap: 10;
+}
+.conversation {
+    -fx-background-color: #211832;
+    -fx-padding: 0 18 16;
+}
+.chat-brand, .chat-title, .panel-title {
+    -fx-text-fill: #fcfaff;
+    -fx-font-weight: bold;
+}
+.chat-brand { -fx-font-size: 29; }
+.chat-title { -fx-font-size: 28; }
+.panel-title { -fx-font-size: 15; -fx-padding: 19 0 0; }
+.chat-caption, .empty-participants { -fx-font-size: 13; }
+.empty-participants { -fx-wrap-text: true; -fx-padding: 4; }
+.chat-header {
+    -fx-padding: 16 2 13;
+    -fx-hgap: 20;
+    -fx-vgap: 3;
+    -fx-border-color: transparent transparent #493761 transparent;
+}
+.chat-online { -fx-font-size: 13; -fx-text-fill: #a7efc4; -fx-graphic-text-gap: 7; }
+.online-dot { -fx-fill: #7fe1ad; }
+.offline-dot { -fx-fill: #f893b9; }
+.chat-button, .send-button {
+    -fx-padding: 9 15;
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+.chat-button { -fx-background-color: #342644; -fx-text-fill: #f5e7ff; -fx-border-color: #5a4471; }
+.chat-button:hover { -fx-background-color: #473457; }
+.send-button { -fx-background-color: #fa479c; -fx-text-fill: #1d1129; -fx-border-color: transparent; }
+.send-button:hover { -fx-background-color: #ff68ae; }
+.send-button:pressed, .chat-button:pressed { -fx-opacity: 0.85; }
+.send-button:focused, .chat-button:focused { -fx-border-color: #e7bdf7; }
+.chat-input {
+    -fx-padding: 12 0 0;
+    -fx-hgap: 10;
+    -fx-border-color: #493761 transparent transparent transparent;
+}
+#composer {
+    -fx-background-color: #15102b;
+    -fx-background-radius: 10;
+    -fx-border-color: #493761;
+    -fx-border-radius: 10;
+    -fx-font-size: 15;
+    -fx-text-fill: #fcfaff;
+    -fx-prompt-text-fill: #bda8df;
+    -fx-highlight-fill: #7454a9;
+}
+#composer:focused { -fx-border-color: #b48de5; }
+#composer .content, #composer .viewport, #composer .scroll-pane { -fx-background-color: transparent; }
+#composer:disabled { -fx-opacity: 0.78; }
+.chat-notice { -fx-padding: 5 2 7; -fx-text-fill: #ffb7d6; -fx-font-size: 13; }
+.connected .list-view {
+    -fx-background-color: transparent;
+    -fx-padding: 5 0;
+}
+.connected .list-view:focused { -fx-background-color: rgba(180,141,229,0.06); }
+.connected .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #f4e9ff;
+    -fx-font-size: 14;
+}
+#participants .list-cell { -fx-padding: 8 6; }
+#participants .list-cell:filled:selected { -fx-background-color: #48345e; }
+#received-messages .list-cell { -fx-padding: 5 8; }
+.message-bubble {
+    -fx-background-color: #352749;
+    -fx-background-radius: 13;
+    -fx-border-radius: 13;
+    -fx-border-color: #4f3b69;
+    -fx-padding: 8 12;
+    -fx-vgap: 3;
+}
+.message-bubble:own { -fx-background-color: #4d2949; -fx-border-color: #824167; }
+.message-detail { -fx-font-size: 12; -fx-text-fill: #d9c4ed; }
+.message-body { -fx-font-size: 15; -fx-text-fill: #fcfaff; }
+.connected .scroll-bar { -fx-background-color: transparent; }
+.connected .scroll-bar .thumb { -fx-background-color: #644d80; -fx-background-radius: 8; }
+.connected .scroll-bar .increment-button, .connected .scroll-bar .decrement-button {
+    -fx-opacity: 0;
+    -fx-padding: 2;
+}

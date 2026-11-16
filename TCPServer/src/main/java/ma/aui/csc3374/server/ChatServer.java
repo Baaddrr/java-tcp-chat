@@ -15,14 +15,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public final class ChatServer implements AutoCloseable {
     private static final System.Logger LOG = System.getLogger(ChatServer.class.getName());
+    public record Activity(Instant timestamp, String message) { }
 
     private final ServerSocket listener;
+    private final Consumer<Activity> observer;
     private final ExecutorService handlers = Executors.newVirtualThreadPerTaskExecutor();
     private final Object lifecycle = new Object();
     // Registration and shutdown share this lock so no accepted socket escapes shutdown.
@@ -32,6 +36,12 @@ public final class ChatServer implements AutoCloseable {
     private boolean closed;
 
     public ChatServer(String host, int port) throws IOException {
+        this(host, port, activity -> { });
+    }
+
+    /** The observer is called by network threads, outside the lifecycle lock. */
+    public ChatServer(String host, int port, Consumer<Activity> observer) throws IOException {
+        this.observer = Objects.requireNonNull(observer);
         listener = new ServerSocket();
         try {
             listener.bind(new InetSocketAddress(host, port));
@@ -65,7 +75,8 @@ public final class ChatServer implements AutoCloseable {
 
     /** Runs the accept loop once; returns after close() has stopped all handlers. */
     public void run() throws IOException {
-        LOG.log(System.Logger.Level.INFO, "Server started on {0}; waiting for clients", listener.getLocalSocketAddress());
+        logActivity("Server Started on " + listener.getLocalSocketAddress());
+        logActivity("Waiting for Client");
         try {
             while (!listener.isClosed()) {
                 Socket client;
@@ -91,15 +102,14 @@ public final class ChatServer implements AutoCloseable {
                 close();
             } finally {
                 handlers.close();
-                LOG.log(System.Logger.Level.INFO, "Server stopped");
+                logActivity("Server Stopped");
             }
         }
     }
 
     private void handle(Socket client) {
         Session session = null;
-        LOG.log(System.Logger.Level.INFO, "Client connected: {0}; active={1}; virtual={2}",
-                client.getRemoteSocketAddress(), connectionCount(), Thread.currentThread().isVirtual());
+        logActivity("Client connected: " + client.getRemoteSocketAddress());
         try (client) {
             session = new Session(client);
             DataInputStream input = new DataInputStream(client.getInputStream());
@@ -116,8 +126,7 @@ public final class ChatServer implements AutoCloseable {
                 return;
             }
             client.setSoTimeout(0);
-            LOG.log(System.Logger.Level.INFO, "Welcome {0}{1}", session.username,
-                    session.readOnly ? " (read-only)" : "");
+            logActivity("Welcome " + session.username + (session.readOnly ? " (read-only)" : ""));
             String command;
             while ((command = readCommand(input)) != null) {
                 switch (command) {
@@ -140,10 +149,14 @@ public final class ChatServer implements AutoCloseable {
                 }
             }
         } catch (IOException e) {
+            boolean stopping;
             synchronized (lifecycle) {
-                if (!closed) {
-                    LOG.log(System.Logger.Level.WARNING, "Client connection failed: " + client.getRemoteSocketAddress(), e);
-                }
+                stopping = closed;
+            }
+            if (!stopping) {
+                String message = "Client connection failed: " + client.getRemoteSocketAddress();
+                LOG.log(System.Logger.Level.WARNING, message, e);
+                notifyObserver(message);
             }
         } finally {
             synchronized (lifecycle) {
@@ -152,8 +165,8 @@ public final class ChatServer implements AutoCloseable {
                     users.remove(key(session.username), session);
                 }
             }
-            LOG.log(System.Logger.Level.INFO, "Client disconnected: {0}; active={1}",
-                    client.getRemoteSocketAddress(), connectionCount());
+            String name = session == null ? null : session.username;
+            logActivity("Client disconnected: " + (name == null ? client.getRemoteSocketAddress() : name));
         }
     }
 
@@ -222,7 +235,21 @@ public final class ChatServer implements AutoCloseable {
                 } catch (IOException closeFailure) {
                     LOG.log(System.Logger.Level.WARNING, "Cannot close failed recipient " + recipient.username, closeFailure);
                 }
+                notifyObserver("Cannot deliver to " + recipient.username);
             }
+        }
+    }
+
+    private void logActivity(String message) {
+        LOG.log(System.Logger.Level.INFO, message);
+        notifyObserver(message);
+    }
+
+    private void notifyObserver(String message) {
+        try {
+            observer.accept(new Activity(Instant.now(), message));
+        } catch (RuntimeException e) {
+            LOG.log(System.Logger.Level.WARNING, "Activity observer failed", e);
         }
     }
 
